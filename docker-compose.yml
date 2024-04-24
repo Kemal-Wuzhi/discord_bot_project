@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  backend-app:
+    restart: always
+    build: .
+    env_file:
+      - ./env/local.env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data  # sqlite3
+    networks:
+      - backend-network
+
+ 
+networks:
+  backend-network:
+    driver: bridge
+
