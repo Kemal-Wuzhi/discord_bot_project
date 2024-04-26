@@ -45,7 +45,6 @@ async def broadcast(ctx, channel_id: int, interval: int, *, message):
 @bot.command()
 async def text_channel(ctx, channel_name):
     # server_id = os.getenv("SERVER_ID")
-    # print("SID:", server_id)
     guild = bot.get_guild(1232939845450600489)
     if guild is None:
         await ctx.send('Server not found.')
