@@ -1,9 +1,19 @@
+import os
+import dotenv
 import discord
 from discord.ext import commands, tasks
+# TODO: refactor hardcode part
+# TODO: modify if function is not available with DMS
+# TODO: implement it in Docker
+# TODO: refactor code to be more readable
 
 intents = discord.Intents.default()
 intents.members = True
 
+dotenv.load_dotenv("./env/local.env")
+bot_token = os.getenv("DISCORD_BOT_TOKEN")
+server_id = os.getenv("SERVER_ID")
+print("BTK:", bot_token)
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 
@@ -14,11 +24,17 @@ async def on_ready():
 
 @bot.command()
 async def echo(ctx, *, message):
+    print("Echo command received")
     await ctx.send(message)
 
 
 @bot.command()
-async def broadcast(ctx, channel: discord.TextChannel, interval: int, *, message):
+async def broadcast(ctx, channel_id: int, interval: int, *, message):
+    channel = bot.get_channel(channel_id)
+    if not channel:
+        await ctx.send(f'Channel with ID "{channel_id}" not found.')
+        return
+
     async def send_message():
         await channel.send(message)
 
@@ -28,7 +44,12 @@ async def broadcast(ctx, channel: discord.TextChannel, interval: int, *, message
 
 @bot.command()
 async def text_channel(ctx, channel_name):
-    guild = ctx.guild
+    # server_id = os.getenv("SERVER_ID")
+    # print("SID:", server_id)
+    guild = bot.get_guild(1232939845450600489)
+    if guild is None:
+        await ctx.send('Server not found.')
+        return
     existing_channel = discord.utils.get(guild.channels, name=channel_name)
     if existing_channel:
         await ctx.send(f'Channel "{channel_name}" already exists.')
@@ -38,14 +59,33 @@ async def text_channel(ctx, channel_name):
 
 
 @bot.command()
-async def kick(ctx, member: discord.Member):
-    await member.kick()
-    await ctx.send(f'{member.name} has been kicked.')
+async def ban(ctx, member_id: int):
+    guild = bot.get_guild(1232939845450600489)
+    if guild is None:
+        await ctx.send('Server not found.')
+        return
+    member = guild.get_member(member_id)
+    if member is None:
+        await ctx.send('Member not found.')
+        return
+    await member.ban()
+    await ctx.send(f'Member {member_id} has been banned.')
 
 
 @bot.command()
-async def ban(ctx, member: discord.Member):
-    await member.ban()
-    await ctx.send(f'{member.name} has been banned.')
+async def kick(ctx, member_id: int):
+    guild = bot.get_guild(1232939845450600489)
+    if guild is None:
+        await ctx.send('Server not found.')
+        return
+    member = guild.get_member(member_id)
+    if member is None:
+        await ctx.send('Member not found.')
+        return
+    await member.kick()
+    await ctx.send(f'Member {member_id} has been kicked.')
 
-bot.run('YOUR_BOT_TOKEN')
+
+if __name__ == "__main__":
+    print("TOKEN:", f'Bot token: {bot_token}')
+    bot.run(bot_token)
