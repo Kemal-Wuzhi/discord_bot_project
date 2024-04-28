@@ -4,10 +4,7 @@ import discord
 from discord.ext import commands, tasks
 from fastapi import FastAPI, APIRouter
 from discord.utils import get
-# TODO: refactor hardcode part
-# TODO: modify if function is not available with DMS
-# TODO: implement it in Docker
-# TODO: refactor code to be more readable
+
 
 dotenv.load_dotenv("./env/local.env")
 
@@ -18,6 +15,7 @@ server_id = os.getenv("SERVER_ID")
 bot = commands.Bot(command_prefix='!', intents=intents)
 router = APIRouter()
 invite_link = None
+server_id = int(os.getenv("SERVER_ID"))
 
 
 @bot.event
@@ -55,9 +53,15 @@ async def broadcast(ctx, channel_id: int, interval: int, *, message):
 
 
 @bot.command()
+async def start_broadcast(ctx, channel_id: int):
+    message = "text channel testing."
+    interval = 180  # broadcast each 3 mins
+    await broadcast(ctx, channel_id, interval, message=message)
+
+
+@bot.command()
 async def text_channel(ctx, channel_name):
-    # server_id = os.getenv("SERVER_ID")
-    guild = bot.get_guild(1232939845450600489)
+    guild = bot.get_guild(server_id)
     if guild is None:
         await ctx.send('Server not found.')
         return
@@ -71,7 +75,7 @@ async def text_channel(ctx, channel_name):
 
 @bot.command()
 async def ban(ctx, member_identifier):
-    guild = bot.get_guild(1232939845450600489)
+    guild = bot.get_guild(server_id)
     if guild is None:
         await ctx.send('Server not found.')
         return
@@ -97,7 +101,7 @@ async def ban(ctx, member_identifier):
 
 @bot.command()
 async def kick(ctx, member_identifier):
-    guild = bot.get_guild(1232939845450600489)
+    guild = bot.get_guild(server_id)
     if guild is None:
         await ctx.send('Server not found.')
         return
