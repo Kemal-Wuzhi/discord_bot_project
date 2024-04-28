@@ -7,13 +7,12 @@ from discord.ext import commands, tasks
 # TODO: implement it in Docker
 # TODO: refactor code to be more readable
 
+dotenv.load_dotenv("./env/local.env")
+
 intents = discord.Intents.default()
 intents.members = True
-
-dotenv.load_dotenv("./env/local.env")
 bot_token = os.getenv("DISCORD_BOT_TOKEN")
 server_id = os.getenv("SERVER_ID")
-print("BTK:", bot_token)
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 
@@ -61,14 +60,14 @@ async def text_channel(ctx, channel_name):
 async def ban(ctx, member_id: int):
     guild = bot.get_guild(1232939845450600489)
     if guild is None:
-        await ctx.send('Server not found.')
+        await ctx.send("Server not found.")
         return
     member = guild.get_member(member_id)
     if member is None:
-        await ctx.send('Member not found.')
+        await ctx.send("Member not found.")
         return
     await member.ban()
-    await ctx.send(f'Member {member_id} has been banned.')
+    await ctx.send(f"Member {member_id} has been banned.")
 
 
 @bot.command()
